@@ -18,7 +18,7 @@ const SelectField = ({ label, value, onChange, options }) => {
         >
           {Object.keys(options).map((item) => {
             return (
-              <MenuItem key={item} value={options[item]}>
+              <MenuItem key={item} value={item}>
                 {options[item]}
               </MenuItem>
             );

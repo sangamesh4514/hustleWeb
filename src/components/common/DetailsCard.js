@@ -34,7 +34,7 @@ const DetailsCard = ({ location, languages, sic, details }) => {
           s
         >
           {" "}
-          <span>{details}</span>
+          <span style={{ whiteSpace: "pre-line" }}>{details}</span>
         </Grid>
         <Grid
           item

@@ -1,51 +1,165 @@
 import { Grid } from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
-
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import TextField from "../common/TextField";
 import SelectField from "../common/SelectField";
 import Button from "../common/Button";
+import { editUser, getUser } from "../slices/profileSlice";
+import Loader from "./../common/Loader";
+import Alert from "../common/Alert";
 
 const EditUser = () => {
+  const [user, setUser] = useState(useSelector((state) => state.profile.user));
+  const [loader, setLoader] = useState(true);
+  const [alertInfo, setAlertInfo] = useState({
+    open: false,
+    message: null,
+    type: null,
+  });
   const [genderOptions, setGenderOptions] = useState({
     male: "Male",
     female: "Female",
   });
+  const userId = localStorage.getItem("userId");
+
   const navigate = useNavigate();
-  const handleSubmit = () => {
-    navigate(`../home/me`);
+  const dispatch = useDispatch();
+  useEffect(() => {
+    if (!user && userId) {
+      dispatch(getUser(userId))
+        .unwrap()
+        .then((res) => {
+          setUser({ ...res.data });
+          setLoader(false);
+        })
+        .catch((err) => {
+          setLoader(false);
+          setAlertInfo({
+            open: true,
+            message: "Server under maintainance!",
+            type: 1,
+          });
+        });
+    } else {
+      setLoader(false);
+    }
+
+    return () => {};
+  }, []);
+
+  const handleName = (e) => {
+    setUser((s) => ({ ...s, name: e.target.value }));
+  };
+  const handleDate = (e) => {
+    setUser((s) => ({ ...s, dob: e.target.value }));
+  };
+  const handleGender = (e) => {
+    setUser((s) => ({ ...s, gender: e.target.value }));
+  };
+  const handleClose = () => {
+    setAlertInfo((s) => ({ ...s, open: false }));
+  };
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    console.log(user);
+    if (!user.name) {
+      setAlertInfo({
+        open: true,
+        message: "Name is missing!",
+        type: 2,
+      });
+    } else {
+      setLoader(true);
+      dispatch(editUser({ userId, data: user }))
+        .unwrap()
+        .then((res) => {
+          navigate(`/home/me`);
+        })
+        .catch((err) => {
+          setLoader(false);
+          setAlertInfo({
+            open: true,
+            message: "Server under maintainance!",
+            type: 1,
+          });
+        });
+    }
   };
   return (
     <>
-      <Grid container>
-        <Grid item xs={12} style={{ padding: "20px" }}>
-          <TextField label="Name" style={{ width: "100%" }} />
-        </Grid>
-        <Grid item xs={12} style={{ padding: "10px 20px" }}>
-          <TextField
-            label="Date of Birth"
-            defaultValue="1999-03-24"
-            type="date"
-            style={{ width: "100%" }}
-          />
-        </Grid>
-        <Grid item xs={12} style={{ padding: "10px 20px" }}>
-          <SelectField label="Gender" options={genderOptions} />
-        </Grid>
-        <Grid item xs={12} style={{ padding: "10px 20px" }}>
-          <Button
-            value="Update User"
-            onClick={() => {
-              handleSubmit();
-            }}
-            type="submit"
+      <form onSubmit={handleSubmit}>
+        <Grid container>
+          <Grid
+            item
+            xs={12}
             style={{
-              width: "100%",
-              backgroundColor: "green",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              padding: "10px",
             }}
-          />
+          >
+            <span style={{ fontSize: "25px" }}>Edit Profile</span>
+          </Grid>
+          <Grid item xs={12} style={{ padding: "10px 20px" }}>
+            <TextField
+              label="Name"
+              style={{ width: "100%" }}
+              value={user?.name || ""}
+              onChange={handleName}
+            />
+          </Grid>
+          <Grid item xs={12} style={{ padding: "10px 20px" }}>
+            <TextField
+              label="Date of Birth"
+              type="date"
+              style={{ width: "100%" }}
+              value={user?.dob.split("T")[0] || ""}
+              onChange={handleDate}
+            />
+          </Grid>
+          <Grid item xs={12} style={{ padding: "10px 20px" }}>
+            <SelectField
+              label="Gender"
+              options={genderOptions}
+              value={user?.gender || ""}
+              onChange={handleGender}
+            />
+          </Grid>
+          <Grid item xs={12} style={{ padding: "10px 20px" }}>
+            <Button
+              value="Save"
+              onClick={handleSubmit}
+              type="submit"
+              style={{
+                width: "100%",
+                backgroundColor: "green",
+              }}
+            />
+          </Grid>
+          <Grid item xs={12} style={{ padding: "10px 20px" }}>
+            <Button
+              value="Cancel"
+              onClick={() => {
+                navigate("/home/me");
+              }}
+              style={{
+                width: "100%",
+                backgroundColor: "darkred",
+              }}
+            />
+          </Grid>
         </Grid>
-      </Grid>
+      </form>
+      <Loader open={loader} />
+      <Alert
+        open={alertInfo.open}
+        message={alertInfo.message}
+        type={alertInfo.type}
+        handleClose={handleClose}
+      />
     </>
   );
 };

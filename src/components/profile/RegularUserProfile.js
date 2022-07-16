@@ -1,10 +1,28 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Grid, CardActionArea } from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
 import Avatar from "@mui/material/Avatar";
 import PersonIcon from "@mui/icons-material/Person";
 import Button from "../common/Button";
+import { clearProfile } from "../slices/profileSlice";
 
-const RegularUserProfile = ({ user, setUser, handleRegister, editUser }) => {
+const RegularUserProfile = () => {
+  const user = useSelector((state) => state.profile.user);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const editUser = () => {
+    navigate(`../../edit/user`);
+  };
+  const handleRegister = () => {
+    navigate(`../../register/hustler`);
+  };
+  const logout = () => {
+    localStorage.clear();
+    dispatch(clearProfile());
+    navigate("../../");
+  };
   return (
     <>
       <Grid container style={{ paddingTop: "10px", paddingBottom: "64px" }}>
@@ -23,7 +41,7 @@ const RegularUserProfile = ({ user, setUser, handleRegister, editUser }) => {
               <Avatar sx={{ width: 100, height: 100 }}>
                 <PersonIcon />
               </Avatar>
-              <span>{user.name}</span>
+              <span>{user.name || "New User"}</span>
             </Grid>
             <Grid
               item
@@ -40,7 +58,7 @@ const RegularUserProfile = ({ user, setUser, handleRegister, editUser }) => {
                   flexDirection: "column",
                 }}
               >
-                <span>{50}</span>
+                <span>{user.coins}</span>
                 <span>coins</span>
               </div>
             </Grid>
@@ -60,7 +78,7 @@ const RegularUserProfile = ({ user, setUser, handleRegister, editUser }) => {
                 }}
               >
                 {" "}
-                <span>{0}</span>
+                <span>{user?.saved?.length}</span>
                 <span>saved</span>
               </div>
             </Grid>
@@ -89,9 +107,9 @@ const RegularUserProfile = ({ user, setUser, handleRegister, editUser }) => {
             padding: "10px 10px",
           }}
         >
-          <CardActionArea style={{ padding: "5px 0px" }} onClick={() => {}}>
+          {/* <CardActionArea style={{ padding: "5px 0px" }} onClick={() => {}}>
             <span style={{ fontSize: "15px" }}>History</span>
-          </CardActionArea>
+          </CardActionArea> */}
           <CardActionArea style={{ padding: "5px 0px" }} onClick={() => {}}>
             <span style={{ fontSize: "15px" }}>Earn Coins [watch ads]</span>
           </CardActionArea>
@@ -113,7 +131,7 @@ const RegularUserProfile = ({ user, setUser, handleRegister, editUser }) => {
           <Button
             value={"LOGOUT"}
             onClick={() => {
-              setUser((s) => ({ ...s, type: !s.type }));
+              logout();
             }}
             style={{
               width: "100%",

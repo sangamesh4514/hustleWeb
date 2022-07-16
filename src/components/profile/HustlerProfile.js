@@ -1,4 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
 import { Paper, Grid, CardActionArea } from "@mui/material";
 import Avatar from "@mui/material/Avatar";
 import PersonIcon from "@mui/icons-material/Person";
@@ -6,8 +8,58 @@ import Button from "../common/Button";
 import Rating from "@mui/material/Rating";
 import Switch from "../common/Switch";
 import DetailsCard from "../common/DetailsCard";
+import { editHustler, clearProfile } from "../slices/profileSlice";
+import Loader from "../common/Loader";
+import Alert from "../common/Alert";
 
-const HustlerProfile = ({ user, setUser, editHustler }) => {
+const HustlerProfile = () => {
+  const user = useSelector((state) => state.profile.hustler);
+  const [loader, setLoader] = useState(false);
+  const [alertInfo, setAlertInfo] = useState({
+    open: false,
+    message: null,
+    type: null,
+  });
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const userId = localStorage.getItem("userId");
+
+  const editUser = () => {
+    navigate("../../edit/hustler");
+  };
+
+  const handleStatus = (e) => {
+    setLoader(true);
+    dispatch(
+      editHustler({ userId, data: { status: e.target.checked ? 1 : 0 } })
+    )
+      .unwrap()
+      .then((res) => {
+        setLoader(false);
+        setAlertInfo({
+          open: true,
+          message: "Status updated succesfully!",
+          type: 0,
+        });
+      })
+      .catch((err) => {
+        setLoader(false);
+        setAlertInfo({
+          open: true,
+          message: "Server under maintainance!",
+          type: 1,
+        });
+      });
+  };
+  const handleClose = () => {
+    setAlertInfo((s) => ({ ...s, open: false }));
+  };
+  const logout = () => {
+    localStorage.clear();
+    dispatch(clearProfile());
+    navigate("../../");
+  };
+
   return (
     <>
       <Grid container style={{ paddingTop: "10px", paddingBottom: "64px" }}>
@@ -16,7 +68,9 @@ const HustlerProfile = ({ user, setUser, editHustler }) => {
           xs={12}
           style={{ display: "flex", justifyContent: "center" }}
         >
-          UserId
+          <span style={{ fontFamily: "bold" }}>
+            <b>{user?.userName || "USER NAME"}</b>
+          </span>
         </Grid>
         <Grid item xs={12}>
           <Grid container style={{ padding: "10px" }}>
@@ -33,7 +87,7 @@ const HustlerProfile = ({ user, setUser, editHustler }) => {
               <Avatar sx={{ width: 80, height: 80 }}>
                 <PersonIcon />
               </Avatar>
-              <span>{user.name}</span>
+              <span>{user?.name}</span>
             </Grid>
             <Grid
               item
@@ -56,9 +110,9 @@ const HustlerProfile = ({ user, setUser, editHustler }) => {
                   }}
                 >
                   <span style={{ height: "27px", fontSize: "25px" }}>
-                    Plumbling
+                    {user?.skill || "-"}
                   </span>
-                  <Switch />
+                  <Switch checked={user?.status} onChange={handleStatus} />
                 </Grid>
                 <Grid
                   item
@@ -78,11 +132,11 @@ const HustlerProfile = ({ user, setUser, editHustler }) => {
             </Grid>
           </Grid>
         </Grid>
-        <Grid item xs={12} style={{ padding: "0px 10px" }}>
+        <Grid item xs={12} style={{ padding: "0px 10px 10px 10px" }}>
           <Button
             value={"EDIT PROFILE"}
             onClick={() => {
-              editHustler();
+              editUser();
             }}
             variant="outlined"
             style={{
@@ -92,30 +146,36 @@ const HustlerProfile = ({ user, setUser, editHustler }) => {
             }}
           />
         </Grid>
-        <Grid
+        {/* <Grid
           item
           xs={12}
           style={{
             display: "flex",
-            justifyContent: "space-between",
-            padding: "15px 10px",
+            justifyContent: "space-around",
+            padding: "10px 10px",
             overflow: "auto",
           }}
         >
-          {["S", "t", "o", "r", "y"].map((item) => {
+          {user?.stories?.map((item) => {
             return (
               <Avatar key={item} sx={{ width: 60, height: 60 }}>
                 {item}
               </Avatar>
             );
           })}
-        </Grid>
+          <Avatar sx={{ width: 60, height: 60 }}>+</Avatar>
+          {user?.stories?.length ? null : (
+            <span style={{ textAlign: "center" }}>
+              Stories are Evidence of your work!
+            </span>
+          )}
+        </Grid> */}
         <Grid item xs={12}>
           <DetailsCard
-            location={"Bangalore"}
-            languages="English,Hindi,Kannada"
-            sic="Not Verified"
-            details={user.details}
+            location={user?.city || "None"}
+            languages={user?.languages?.join(",") || "None"}
+            sic={user?.SIC || "Not Verified"}
+            details={user?.description}
           />
         </Grid>
 
@@ -126,20 +186,20 @@ const HustlerProfile = ({ user, setUser, editHustler }) => {
             margin: "10px 10px",
             padding: "5px",
             border: "0.1px solid #d2d2d2",
+            borderRadius: "4px",
             display: "flex",
             justifyContent: "center",
           }}
         >
           <Rating
-            //value={user.rating}
-            //readOnly
-            defaultValue={9}
+            value={user?.ratings?.value}
+            readOnly
             max={10}
             precision={1}
             name="rating"
             sx={{ fontSize: "30px" }}
           />
-          <span style={{ fontSize: "1.6em" }}>(2)</span>
+          <span style={{ fontSize: "1.6em" }}>({user?.ratings?.number})</span>
         </Grid>
         <Grid
           item
@@ -150,11 +210,13 @@ const HustlerProfile = ({ user, setUser, editHustler }) => {
             padding: "10px 10px",
           }}
         >
-          <CardActionArea style={{ padding: "5px 0px" }} onClick={() => {}}>
+          {/* <CardActionArea style={{ padding: "5px 0px" }} onClick={() => {}}>
             <span style={{ fontSize: "15px" }}>Saved Profiles</span>
-          </CardActionArea>
+          </CardActionArea> */}
           <CardActionArea style={{ padding: "5px 0px" }} onClick={() => {}}>
-            <span style={{ fontSize: "15px" }}>50 Coins [Earn more]</span>
+            <span style={{ fontSize: "15px" }}>
+              {user?.coins} Coins [Earn more]
+            </span>
           </CardActionArea>
           <CardActionArea style={{ padding: "5px 0px" }} onClick={() => {}}>
             <span style={{ fontSize: "15px" }}>Refer a friend</span>
@@ -168,7 +230,7 @@ const HustlerProfile = ({ user, setUser, editHustler }) => {
           <Button
             value={"LOGOUT"}
             onClick={() => {
-              setUser((s) => ({ ...s, type: !s.type }));
+              logout();
             }}
             style={{
               width: "100%",
@@ -178,6 +240,14 @@ const HustlerProfile = ({ user, setUser, editHustler }) => {
           />
         </Grid>
       </Grid>
+      <Loader open={loader} />
+      <Alert
+        open={alertInfo.open}
+        message={alertInfo.message}
+        type={alertInfo.type}
+        handleClose={handleClose}
+        position={["bottom", "left"]}
+      />
     </>
   );
 };

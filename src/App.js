@@ -12,18 +12,19 @@ import Navbar from "./components/utils/Navbar";
 import Profile from "./components/profile/Profile";
 import EditUser from "./components/profile/EditUser";
 import EditHustler from "./components/profile/EditHustler";
+import SplashScreen from "./components/utils/SplashScreen";
 
 const App = () => {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Login />} />
+        <Route path="/" element={<SplashScreen />} />
         <Route path="/login" element={<Login />} />
         <Route path="/otp" element={<Otp />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/register/:id" element={<HustlerRegister />} />
-        <Route path="/edit/user/:id" element={<EditUser />} />
-        <Route path="/edit/hustler/:id" element={<EditHustler />} />
+        <Route path="/register/user" element={<Register />} />
+        <Route path="/register/hustler" element={<HustlerRegister />} />
+        <Route path="/edit/user" element={<EditUser />} />
+        <Route path="/edit/hustler" element={<EditHustler />} />
         <Route path="home" element={<Navbar />}>
           <Route index element={<Home />} />
           <Route path="users/:skill" element={<Users />} />

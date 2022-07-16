@@ -1,6 +1,6 @@
 import { Grid } from "@mui/material";
 import React, { useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Button from "../common/Button";
 import SelectField from "../common/SelectField";
 import TextField from "../common/TextField";
@@ -31,13 +31,22 @@ const Register = () => {
   };
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log(data, dob.current.value);
+    console.log("save/edit user profile", data, dob.current.value);
+    navigate(`/home`, { replace: true });
+  };
+  const handleSkip = () => {
     navigate(`/home`, { replace: true });
   };
   return (
     <>
       <form onSubmit={handleSubmit}>
         <Grid container>
+          <Grid item xs={10}>
+            Create Profile
+          </Grid>
+          <Grid item xs={2}>
+            <button onClick={handleSkip}>Skip</button>
+          </Grid>
           <Grid item xs={12} style={{ padding: "20px" }}>
             <TextField
               value={data.name || ""}
@@ -65,7 +74,7 @@ const Register = () => {
           </Grid>
           <Grid item xs={12} style={{ padding: "10px 20px" }}>
             <Button
-              value="Register"
+              value="Save"
               onClick={handleSubmit}
               type="submit"
               style={{
