@@ -44,9 +44,9 @@ const Profile = () => {
         <HustlerProfile />
       ) : (
         <>
-          <Grid container spacing={4} style={{ paddingTop: "10px" }}>
+          <Grid container spacing={4} style={{ paddingTop: "5px" }}>
             <Grid item xs={12}>
-              <Skeleton variant="text" width={"100%"} />
+              <Skeleton variant="text" width={"100%"} height={"30px"} />
             </Grid>
             <Grid item xs={4}>
               <Skeleton variant="circular" width={"100%"} height={"100%"} />
@@ -54,7 +54,7 @@ const Profile = () => {
             <Grid item xs={4}>
               <Skeleton variant="rectangular" width={"100%"} height={"100px"} />
             </Grid>
-            <Grid item xs={4}>
+            <Grid item xs={4} style={{ paddingRight: "10px" }}>
               <Skeleton variant="rectangular" width={"100%"} height={"100px"} />
             </Grid>
             <Grid item xs={12}>

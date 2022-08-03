@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
@@ -21,13 +21,18 @@ const Home = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     const name = search;
+    console.log(search);
     setSearch("");
     navigate(`users/${name}`);
   };
 
   const handleSkill = (name) => {
     setSearch("");
-    navigate(`users/${name}`);
+    navigate(`hustlers/${name}`);
+  };
+
+  const handleLocation = () => {
+    navigate(`/location/search`);
   };
 
   return (
@@ -59,6 +64,7 @@ const Home = () => {
                   width: "100%",
                   color: "black",
                 }}
+                onClick={handleLocation}
               >
                 <LocationOnIcon style={{ fontSize: "35px" }} />
                 <span
