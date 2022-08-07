@@ -1,18 +1,31 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
-import { Grid, Button, IconButton, Paper } from "@mui/material";
+import { Grid, Button, IconButton, Paper, Drawer } from "@mui/material";
 import TextField from "../common/TextField";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import InputAdornment from "@mui/material/InputAdornment";
+import NotificationsOutlinedIcon from "@mui/icons-material/NotificationsOutlined";
 import { skills } from "./data";
 import SkillCard from "../common/SkillCard";
 
 const Home = () => {
   const [search, setSearch] = useState("");
+  const [drawerState, setDrawerState] = useState(false);
   const navigate = useNavigate();
+  const location = useSelector((state) => state.profile.location);
+
+  useEffect(() => {
+    console.log(location);
+    if (!location) {
+      setDrawerState(true);
+    }
+
+    return () => {};
+  }, []);
 
   const handleSearch = (e) => {
     setSearch(e.target.value);
@@ -51,48 +64,50 @@ const Home = () => {
           <Grid container>
             <Grid
               item
-              xs={4}
+              xs={10}
               style={{
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
               }}
+              onClick={handleLocation}
             >
-              <Button
+              <LocationOnIcon style={{ fontSize: "35px" }} />
+              <span
                 style={{
-                  height: "100%",
                   width: "100%",
-                  color: "black",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  fontSize: "12px",
                 }}
-                onClick={handleLocation}
               >
-                <LocationOnIcon style={{ fontSize: "35px" }} />
-                <span
-                  style={{
-                    width: "100%",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    fontSize: "12px",
-                  }}
-                >
-                  Bangalore
-                </span>
-              </Button>
+                {location?.name}
+              </span>
             </Grid>
             <Grid
               item
-              xs={8}
+              xs={2}
               style={{
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
               }}
             >
+              <NotificationsOutlinedIcon />
+            </Grid>
+          </Grid>
+        </Toolbar>
+      </AppBar>
+      <Grid container style={{ paddingTop: "60px", paddingBottom: "64px" }}>
+        <Grid item xs={12}>
+          <Grid container style={{ padding: "10px" }}>
+            {/* <Grid item xs={12}>
               <form onSubmit={handleSubmit}>
                 <TextField
+                  fullWidth
                   placeholder="Search..."
                   value={search}
-                  sx={{ m: 1, width: "25ch" }}
+                  sx={{ m: 1 }}
                   onChange={handleSearch}
                   inputProps={{
                     style: {
@@ -113,13 +128,7 @@ const Home = () => {
                   }}
                 />
               </form>
-            </Grid>
-          </Grid>
-        </Toolbar>
-      </AppBar>
-      <Grid container style={{ paddingTop: "60px", paddingBottom: "64px" }}>
-        <Grid item xs={12}>
-          <Grid container style={{ padding: "10px" }}>
+            </Grid> */}
             {skills.map((skill) => {
               return (
                 <Grid item xs={6} key={skill.name} style={{ padding: "5px" }}>
@@ -134,6 +143,26 @@ const Home = () => {
           </Grid>
         </Grid>
       </Grid>
+      <Drawer
+        anchor={"bottom"}
+        open={drawerState}
+        //onClose={() => setDrawerState(false)}
+      >
+        <Grid container style={{ padding: "20px" }} spacing={2}>
+          <Grid item xs={12}>
+            <span>Choose location to find professionals near you!</span>
+          </Grid>
+          <Grid item xs={12}>
+            <Button
+              onClick={handleLocation}
+              variant="contained"
+              style={{ width: "100%", backgroundColor: "green" }}
+            >
+              Choose Location
+            </Button>
+          </Grid>
+        </Grid>
+      </Drawer>
     </Paper>
   );
 };

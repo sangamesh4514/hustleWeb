@@ -8,6 +8,7 @@ export const profileSlice = createSlice({
     type: null,
     user: null,
     hustler: null,
+    location: null,
   },
   reducers: {
     clearProfile(state, action) {
@@ -15,6 +16,11 @@ export const profileSlice = createSlice({
       state.userId = null;
       state.type = null;
       state.hustler = null;
+      state.location = null;
+    },
+    addLocation(state, action) {
+      const { location } = action.payload;
+      state.location = location;
     },
   },
   extraReducers: (builder) => {
@@ -54,7 +60,7 @@ export const profileSlice = createSlice({
       });
   },
 });
-export const { clearProfile } = profileSlice.actions;
+export const { clearProfile, addLocation } = profileSlice.actions;
 
 export default profileSlice.reducer;
 

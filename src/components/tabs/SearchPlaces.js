@@ -1,95 +1,202 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import AppBar from "@mui/material/AppBar";
-import Toolbar from "@mui/material/Toolbar";
 import { Grid, Button, IconButton, Paper } from "@mui/material";
+import usePlacesAutocomplete, {
+  getGeocode,
+  getLatLng,
+} from "use-places-autocomplete";
+import { GoogleMap, useJsApiLoader } from "@react-google-maps/api";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
-import MyLocationOutlinedIcon from "@mui/icons-material/MyLocationOutlined";
-import InputAdornment from "@mui/material/InputAdornment";
-import TextField from "../common/TextField";
-import {
-  GoogleMap,
-  useJsApiLoader,
-  Autocomplete,
-} from "@react-google-maps/api";
+import MyLocationRoundedIcon from "@mui/icons-material/MyLocationRounded";
+import ClearOutlinedIcon from "@mui/icons-material/ClearOutlined";
+import RoomOutlinedIcon from "@mui/icons-material/RoomOutlined";
+import ArrowForwardIosOutlinedIcon from "@mui/icons-material/ArrowForwardIosOutlined";
+import { useSelector, useDispatch } from "react-redux";
+import { addLocation } from "../slices/profileSlice";
+
+const libraries = ["places"];
 
 const SearchPlaces = () => {
-  const [search, setSearch] = useState("");
-  const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: process.env.REACT_APP_MAP_API_KEY,
-    libraries: ["places"],
-  });
-  const navigate = useNavigate();
+  const location = useSelector((state) => state.profile.location);
+  const {
+    ready,
+    value,
+    setValue,
+    suggestions: { status, data },
+    clearSuggestions,
+  } = usePlacesAutocomplete();
 
-  useEffect(() => {
-    getLocation();
-    return () => {};
-  }, []);
-  const getLocation = () => {
-    if (window.navigator.geolocation) {
-      window.navigator.geolocation.getCurrentPosition(console.log, console.log);
-    }
-  };
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleSearch = (e) => {
-    setSearch(e.target.value);
+    setValue(e.target.value);
+  };
+
+  const handleSelect = async (description, place_id) => {
+    setValue(description, false);
+    clearSuggestions();
+
+    const results = await getGeocode({ address: description });
+    const { lat, lng } = await getLatLng(results[0]);
+    console.log(results, lat, lng);
+    dispatch(addLocation({ location: { lat, lng, name: description } }));
+    navigate("/home");
   };
 
   const handleCurrentLocation = () => {
-    navigate("/location/map");
+    if (window.navigator.geolocation) {
+      window.navigator.geolocation.getCurrentPosition(
+        (res) => {
+          navigate("/location/map");
+        },
+        (err) => {
+          console.log(err);
+          alert(err.message);
+        }
+      );
+    }
   };
 
-  if (!isLoaded) {
-    return <h1>"Loading"</h1>;
-  }
+  console.log(status, data);
+  if (!ready) return <h1>loading</h1>;
+
   return (
     <>
-      <Paper style={{ height: "100vh" }}>
-        <AppBar
-          position="fixed"
-          color="transparent"
-          style={{
-            height: "56px",
-            background: "white",
-            borderBottom: "0.1px solid #d2d2d2",
-          }}
-          elevation={1}
-        >
-          <Toolbar style={{ height: "100%", width: "100%", padding: "0px" }}>
-            <Grid container>
-              <Grid item xs={1} style={{ paddingLeft: "15px" }}>
-                <ArrowBackIosIcon />
-              </Grid>
-              <Grid item xs={9} style={{ padding: "0px " }}>
-                <Autocomplete>
-                  <TextField
-                    placeholder="Search..."
-                    value={search}
-                    variant="standard"
-                    fullWidth
-                    onChange={handleSearch}
-                  />
-                </Autocomplete>
-              </Grid>
-              <Grid item xs={1}>
-                <MyLocationOutlinedIcon onClick={handleCurrentLocation} />
-              </Grid>
-            </Grid>
-          </Toolbar>
-        </AppBar>
-      </Paper>
       <Grid container>
         <Grid item xs={12}>
-          <Autocomplete>
-            <TextField
-              placeholder="Search..."
-              value={search}
-              variant="standard"
-              fullWidth
-              onChange={handleSearch}
-            />
-          </Autocomplete>
+          <Grid
+            container
+            style={{
+              display: "flex",
+              alignItems: "center",
+              borderBottom: "0.1px solid #d2d2d2",
+            }}
+          >
+            <Grid item xs={1}>
+              <ArrowBackIosIcon
+                style={{
+                  fontSize: "22px",
+                  paddingLeft: "10px",
+                  paddingTop: "5px",
+                }}
+                onClick={() => {
+                  if (!location) {
+                    alert("Choose a location!");
+                  } else {
+                    navigate("/home");
+                  }
+                }}
+              />
+            </Grid>
+            <Grid item xs={10}>
+              <input
+                type="text"
+                placeholder="Search..."
+                value={value}
+                disabled={!ready}
+                onChange={handleSearch}
+                style={{
+                  border: "none",
+                  outline: "none",
+                  padding: "10px 0px",
+                  fontSize: "16px",
+                  width: "100%",
+                }}
+              />
+            </Grid>
+            <Grid item xs={1}>
+              {value ? (
+                <ClearOutlinedIcon
+                  onClick={() => {
+                    setValue("");
+                    clearSuggestions();
+                  }}
+                />
+              ) : (
+                <h6></h6>
+              )}
+            </Grid>
+          </Grid>
         </Grid>
+        <Grid
+          item
+          xs={12}
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            borderBottom: "5px solid #d2d2d2",
+            //borderRadius: "5px",
+            padding: "10px",
+          }}
+          onClick={handleCurrentLocation}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
+            <MyLocationRoundedIcon
+              style={{ color: "green", fontSize: "22px", paddingRight: "10px" }}
+            />
+            <span style={{ color: "green", paddingRight: "10px" }}>
+              Use current location
+            </span>
+          </div>
+
+          <ArrowForwardIosOutlinedIcon
+            style={{ fontSize: "22px", paddingRight: "10px" }}
+          />
+        </Grid>
+
+        {status === "OK" &&
+          data.map(({ place_id, description, structured_formatting }) => (
+            <Grid
+              item
+              xs={12}
+              key={place_id}
+              onClick={(e) => handleSelect(description, place_id)}
+              style={{
+                borderBottom: "0.1px solid #d2d2d2",
+                //padding: "6px 0px",
+              }}
+            >
+              <Grid container>
+                <Grid
+                  item
+                  xs={1}
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    padding: "10px 10px 10px 15px",
+                  }}
+                >
+                  {" "}
+                  <RoomOutlinedIcon />
+                </Grid>
+                <Grid
+                  item
+                  xs={11}
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                    padding: "10px 5px",
+                  }}
+                >
+                  <span style={{ fontSize: "15px" }}>
+                    {structured_formatting.main_text}
+                  </span>
+                  <span style={{ fontSize: "12px" }}>
+                    {structured_formatting.secondary_text}
+                  </span>
+                </Grid>
+              </Grid>
+            </Grid>
+          ))}
+        {status === "ZERO_RESULTS" ? <h3>No Results Found</h3> : null}
       </Grid>
     </>
   );
