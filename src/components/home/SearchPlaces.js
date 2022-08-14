@@ -12,12 +12,14 @@ import ClearOutlinedIcon from "@mui/icons-material/ClearOutlined";
 import RoomOutlinedIcon from "@mui/icons-material/RoomOutlined";
 import ArrowForwardIosOutlinedIcon from "@mui/icons-material/ArrowForwardIosOutlined";
 import { useSelector, useDispatch } from "react-redux";
-import { addLocation } from "../slices/profileSlice";
+import { addLocation, editUser, editHustler } from "../slices/profileSlice";
+import Loader from "../common/Loader";
 
 const libraries = ["places"];
 
 const SearchPlaces = () => {
   const location = useSelector((state) => state.profile.location);
+  const [loader, setLoader] = useState(false);
   const {
     ready,
     value,
@@ -28,20 +30,63 @@ const SearchPlaces = () => {
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const userId = localStorage.getItem("userId");
+  const type = Number(localStorage.getItem("userType"));
 
   const handleSearch = (e) => {
     setValue(e.target.value);
   };
 
   const handleSelect = async (description, place_id) => {
+    setLoader(true);
     setValue(description, false);
     clearSuggestions();
-
     const results = await getGeocode({ address: description });
     const { lat, lng } = await getLatLng(results[0]);
     console.log(results, lat, lng);
-    dispatch(addLocation({ location: { lat, lng, name: description } }));
-    navigate("/home");
+    if (type === 0) {
+      dispatch(
+        editUser({
+          userId,
+          data: {
+            location: {
+              coordinates: [lat, lng],
+              type: "Point",
+              name: description,
+            },
+          },
+        })
+      )
+        .unwrap()
+        .then((res) => {
+          navigate("/home");
+        })
+        .catch((err) => {
+          setLoader(false);
+          console.log(err);
+        });
+    } else if (type === 1) {
+      dispatch(
+        editHustler({
+          userId,
+          data: {
+            location: {
+              coordinates: [lat, lng],
+              type: "Point",
+              name: description,
+            },
+          },
+        })
+      )
+        .unwrap()
+        .then((res) => {
+          navigate("/home");
+        })
+        .catch((err) => {
+          setLoader(false);
+          console.log(err);
+        });
+    }
   };
 
   const handleCurrentLocation = () => {
@@ -198,6 +243,7 @@ const SearchPlaces = () => {
           ))}
         {status === "ZERO_RESULTS" ? <h3>No Results Found</h3> : null}
       </Grid>
+      <Loader open={loader} />
     </>
   );
 };

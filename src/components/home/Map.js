@@ -16,14 +16,18 @@ import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import RoomOutlinedIcon from "@mui/icons-material/RoomOutlined";
 import MyLocationRoundedIcon from "@mui/icons-material/MyLocationRounded";
 import Button from "../common/Button";
-import { addLocation } from "../slices/profileSlice";
+import { addLocation, editUser, editHustler } from "../slices/profileSlice";
+import Loader from "../common/Loader";
 
 const Map = () => {
   const [location, setLocation] = useState(null);
+  const [loader, setLoader] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const mapRef = useRef(null);
   const [center, setCenter] = useState(null);
+  const userId = localStorage.getItem("userId");
+  const type = Number(localStorage.getItem("userType"));
   const options = useMemo(
     () => ({
       disableDefaultUI: true,
@@ -96,11 +100,54 @@ const Map = () => {
   };
   //console.log(mapRef.current);
   const handleSubmit = () => {
+    setLoader(true);
     const lat = mapRef.current.state.map.center.lat();
     const lng = mapRef.current.state.map.center.lng();
 
-    dispatch(addLocation({ location: { lat, lng, name: location } }));
-    navigate("/home");
+    if (type === 0) {
+      dispatch(
+        editUser({
+          userId,
+          data: {
+            location: {
+              coordinates: [lat, lng],
+              type: "Point",
+              name: location,
+            },
+          },
+        })
+      )
+        .unwrap()
+        .then((res) => {
+          navigate("/home");
+        })
+        .catch((err) => {
+          setLoader(false);
+          console.log(err);
+        });
+    } else if (type === 1) {
+      dispatch(
+        editHustler({
+          userId,
+          data: {
+            location: {
+              coordinates: [lat, lng],
+              type: "Point",
+              name: location,
+            },
+          },
+        })
+      )
+        .unwrap()
+        .then((res) => {
+          navigate("/home");
+        })
+        .catch((err) => {
+          setLoader(false);
+          console.log(err);
+        });
+    }
+    //navigate("/home");
   };
 
   return (
@@ -239,6 +286,7 @@ const Map = () => {
           </Grid>
         </Grid>
       </Grid>
+      <Loader open={loader} />
     </>
   );
 };

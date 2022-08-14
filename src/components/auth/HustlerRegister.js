@@ -15,6 +15,7 @@ import AddLocationAltOutlinedIcon from "@mui/icons-material/AddLocationAltOutlin
 import { createHustler } from "../slices/profileSlice";
 import Loader from "../common/Loader";
 import Alert from "../common/Alert";
+import { skillOptions } from "../home/data";
 
 const HustlerRegister = () => {
   const [data, setData] = useState({
@@ -36,10 +37,6 @@ const HustlerRegister = () => {
   const dispatch = useDispatch();
   const userId = localStorage.getItem("userId");
   const languagesOptions = ["English", "Kannada", "Hindi"];
-  const skillOptions = {
-    mechanic: "Mechanic",
-    painter: "Painter",
-  };
   const cityOptions = {
     bangalore: "Bangalore",
     mysore: "Mysore",

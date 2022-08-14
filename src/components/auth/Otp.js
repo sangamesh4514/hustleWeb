@@ -7,6 +7,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { userLogin, hustlerLogin, userRegister } from "../slices/authSlice";
 import Loader from "../common/Loader";
 import Alert from "../common/Alert";
+import { addHustler, addNewUser, addUser } from "../slices/profileSlice";
 
 const Otp = () => {
   const [otp, setOtp] = useState("");
@@ -36,6 +37,8 @@ const Otp = () => {
         dispatch(userLogin({ userId: data.userId, otp }))
           .unwrap()
           .then((res) => {
+            console.log(res);
+            dispatch(addUser({ data: res.data }));
             navigate("/home");
           })
           .catch((err) => {
@@ -50,6 +53,8 @@ const Otp = () => {
         dispatch(hustlerLogin({ userId: data.userId, otp }))
           .unwrap()
           .then((res) => {
+            console.log(res);
+            dispatch(addHustler({ data: res.data }));
             navigate("/home");
           })
           .catch((err) => {
@@ -65,6 +70,7 @@ const Otp = () => {
       dispatch(userRegister({ phoneNumber: data.phoneNumber, otp }))
         .unwrap()
         .then((res) => {
+          dispatch(addNewUser({ data: res.data }));
           navigate("/register/user");
         })
         .catch((err) => {

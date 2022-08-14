@@ -1,6 +1,9 @@
 import axios from "axios";
 
-const API = axios.create({ baseURL: "https://hustle4514.herokuapp.com/" });
+const local = "http://localhost:5000/";
+const prod = "https://hustle4514.herokuapp.com/";
+
+const API = axios.create({ baseURL: local });
 
 export const generateOtp = (phoneNumber) =>
   API.get(`/auth/getotp/${phoneNumber}`);
@@ -15,6 +18,8 @@ export const getUser = (userId) => API.get(`/users/${userId}`);
 export const editUser = (userId, data) => API.patch(`users/${userId}`, data);
 
 export const getHustler = (userId) => API.get(`/hustlers/${userId}`);
+export const getSkilledHustlers = (skill, data) =>
+  API.post(`/hustlers/skill/${skill}`, data);
 export const createHustler = (userId, data) =>
   API.post(`hustlers/${userId}`, data);
 export const editHustler = (userId, data) =>

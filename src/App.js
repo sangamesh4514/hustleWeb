@@ -4,17 +4,17 @@ import HustlerRegister from "./components/auth/HustlerRegister";
 import Login from "./components/auth/Login";
 import Otp from "./components/auth/Otp";
 import Register from "./components/auth/Register";
-import Home from "./components/tabs/Home";
+import Home from "./components/home/Home";
 import Errors from "./components/utils/Errors";
 import Navbar from "./components/utils/Navbar";
 import Profile from "./components/profile/Profile";
 import EditUser from "./components/profile/EditUser";
 import EditHustler from "./components/profile/EditHustler";
 import SplashScreen from "./components/utils/SplashScreen";
-import SearchPlaces from "./components/tabs/SearchPlaces";
-import Hustlers from "./components/tabs/Hustlers";
-import Hustler from "./components/tabs/Hustler";
-import Map from "./components/tabs/Map";
+import SearchPlaces from "./components/home/SearchPlaces";
+import Hustlers from "./components/home/Hustlers";
+import Hustler from "./components/home/Hustler";
+import Map from "./components/home/Map";
 
 const App = () => {
   return (

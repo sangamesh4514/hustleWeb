@@ -22,6 +22,27 @@ export const profileSlice = createSlice({
       const { location } = action.payload;
       state.location = location;
     },
+    addUser(state, action) {
+      const { data } = action.payload;
+      state.user = data;
+      state.userId = data.userId;
+      state.type = data.type;
+      state.location = data.location;
+    },
+    addNewUser(state, action) {
+      const { data } = action.payload;
+      state.user = data;
+      state.userId = data.userId;
+      state.type = data.type;
+      state.location = null;
+    },
+    addHustler(state, action) {
+      const { data } = action.payload;
+      state.hustler = data;
+      state.userId = data.userId;
+      state.type = data.type;
+      state.location = data.location;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -30,18 +51,21 @@ export const profileSlice = createSlice({
         state.user = data;
         state.userId = data.userId;
         state.type = data.type;
+        state.location = data.location;
       })
       .addCase(editUser.fulfilled, (state, action) => {
         const { data } = action.payload;
         state.user = data;
         state.userId = data.userId;
         state.type = data.type;
+        state.location = data.location;
       })
       .addCase(createHustler.fulfilled, (state, action) => {
         const { data } = action.payload;
         state.hustler = data;
         state.userId = data.userId;
         state.type = data.type;
+        state.location = data.location;
         state.user = null;
         localStorage.setItem("userType", data.type);
       })
@@ -50,6 +74,7 @@ export const profileSlice = createSlice({
         state.hustler = data;
         state.userId = data.userId;
         state.type = data.type;
+        state.location = data.location;
       })
       .addCase(editHustler.fulfilled, (state, action) => {
         const { data } = action.payload;
@@ -57,10 +82,12 @@ export const profileSlice = createSlice({
         state.userId = data.userId;
         state.type = data.type;
         state.user = null;
+        state.location = data.location;
       });
   },
 });
-export const { clearProfile, addLocation } = profileSlice.actions;
+export const { clearProfile, addLocation, addUser, addNewUser, addHustler } =
+  profileSlice.actions;
 
 export default profileSlice.reducer;
 

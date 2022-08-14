@@ -11,17 +11,41 @@ import InputAdornment from "@mui/material/InputAdornment";
 import NotificationsOutlinedIcon from "@mui/icons-material/NotificationsOutlined";
 import { skills } from "./data";
 import SkillCard from "../common/SkillCard";
+import { getHustler, getUser } from "../slices/profileSlice";
 
 const Home = () => {
   const [search, setSearch] = useState("");
   const [drawerState, setDrawerState] = useState(false);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const location = useSelector((state) => state.profile.location);
+  const type = Number(localStorage.getItem("userType"));
+  const userId = localStorage.getItem("userId");
 
   useEffect(() => {
     console.log(location);
     if (!location) {
       setDrawerState(true);
+    }
+    if (userId) {
+      if (type == 0) {
+        dispatch(getUser(userId))
+          .unwrap()
+          .then((res) => {
+            console.log(res);
+            if (res.data.location.coordinates.length > 0) {
+              setDrawerState(false);
+            }
+          });
+      } else if (type == 1) {
+        dispatch(getHustler(userId))
+          .unwrap()
+          .then((res) => {
+            if (res.data.location.coordinates.length > 0) {
+              setDrawerState(false);
+            }
+          });
+      }
     }
 
     return () => {};
@@ -39,9 +63,8 @@ const Home = () => {
     navigate(`users/${name}`);
   };
 
-  const handleSkill = (name) => {
-    setSearch("");
-    navigate(`hustlers/${name}`);
+  const handleSkill = (id) => {
+    navigate(`hustlers/${id}`);
   };
 
   const handleLocation = () => {
@@ -49,7 +72,7 @@ const Home = () => {
   };
 
   return (
-    <Paper style={{ height: "100vh" }}>
+    <>
       <AppBar
         position="fixed"
         color="transparent"
@@ -135,7 +158,7 @@ const Home = () => {
                   <SkillCard
                     name={skill.name}
                     image={skill.img}
-                    handleSkill={handleSkill}
+                    handleSkill={() => handleSkill(skill.id)}
                   />
                 </Grid>
               );
@@ -163,7 +186,7 @@ const Home = () => {
           </Grid>
         </Grid>
       </Drawer>
-    </Paper>
+    </>
   );
 };
 

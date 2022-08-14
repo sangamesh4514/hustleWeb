@@ -16,7 +16,11 @@ const RegularUserProfile = () => {
     navigate(`../../edit/user`);
   };
   const handleRegister = () => {
-    navigate(`../../register/hustler`);
+    if (user.name.length < 1) {
+      alert("Add a name to register as a pro");
+    } else {
+      navigate(`../../register/hustler`);
+    }
   };
   const logout = () => {
     localStorage.clear();

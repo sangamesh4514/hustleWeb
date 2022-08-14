@@ -52,7 +52,7 @@ const DetailsCard = ({ location, languages, sic, details }) => {
         >
           <Grid container>
             <Grid item xs={4}>
-              <span>Location - </span>
+              <span>City - </span>
             </Grid>
             <Grid item xs={8}>
               <span>{location}</span>
