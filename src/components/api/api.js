@@ -3,7 +3,7 @@ import axios from "axios";
 const local = "http://localhost:5000/";
 const prod = "https://hustle4514.herokuapp.com/";
 
-const API = axios.create({ baseURL: local });
+const API = axios.create({ baseURL: prod });
 
 export const generateOtp = (phoneNumber) =>
   API.get(`/auth/getotp/${phoneNumber}`);
