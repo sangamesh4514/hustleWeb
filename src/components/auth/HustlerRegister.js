@@ -15,15 +15,24 @@ import AddLocationAltOutlinedIcon from "@mui/icons-material/AddLocationAltOutlin
 import { createHustler } from "../slices/profileSlice";
 import Loader from "../common/Loader";
 import Alert from "../common/Alert";
-import { skillOptions } from "../home/data";
+import {
+  skillOptions,
+  expereinceOptions,
+  languagesOptions,
+  cityOptions,
+} from "../home/data";
 
 const HustlerRegister = () => {
   const [data, setData] = useState({
     userName: "",
     skill: "",
+    dob: "1999-03-24",
     city: "",
     pinCode: "",
     description: "",
+    address: "",
+    experience: 0,
+    email: null,
   });
   const [languages, setLanguages] = useState([]);
   const [loader, setLoader] = useState(false);
@@ -36,11 +45,6 @@ const HustlerRegister = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const userId = localStorage.getItem("userId");
-  const languagesOptions = ["English", "Kannada", "Hindi"];
-  const cityOptions = {
-    bangalore: "Bangalore",
-    mysore: "Mysore",
-  };
   const ITEM_HEIGHT = 48;
   const ITEM_PADDING_TOP = 8;
   const MenuProps = {
@@ -71,6 +75,11 @@ const HustlerRegister = () => {
       return { ...s, city: e.target.value };
     });
   };
+  const handleExperience = (e) => {
+    setData((s) => {
+      return { ...s, experience: e.target.value };
+    });
+  };
   const handlePincode = (e) => {
     setData((s) => {
       return { ...s, pinCode: e.target.value };
@@ -85,6 +94,17 @@ const HustlerRegister = () => {
     setData((s) => {
       return { ...s, description: e.target.value };
     });
+  };
+  const handleAddress = (e) => {
+    setData((s) => {
+      return { ...s, address: e.target.value };
+    });
+  };
+  const handleEmail = (e) => {
+    setData((s) => ({ ...s, email: e.target.value }));
+  };
+  const handleDate = (e) => {
+    setData((s) => ({ ...s, dob: e.target.value }));
   };
 
   const handleLanguages = (event) => {
@@ -133,6 +153,16 @@ const HustlerRegister = () => {
       });
     } else {
       setLoader(true);
+      if (data.email && !validateEmail(data.email)) {
+        setLoader(false);
+
+        setAlertInfo({
+          open: true,
+          message: "Please enter a valid email!",
+          type: 1,
+        });
+        return;
+      }
       console.log(data, languages);
       dispatch(createHustler({ userId, data: { ...data, languages } }))
         .unwrap()
@@ -148,14 +178,26 @@ const HustlerRegister = () => {
         .catch((err) => {
           console.log(err);
           setLoader(false);
-          setAlertInfo({
-            open: true,
-            message: err,
-            type: 3,
-          });
+          if (err?.subCode) {
+            setAlertInfo({
+              open: true,
+              message: err.message,
+              type: 3,
+            });
+          } else {
+            setAlertInfo({
+              open: true,
+              message: "Server under maintainance ,Try again later!",
+              type: 3,
+            });
+          }
         });
     }
   };
+  function validateEmail(email) {
+    var re = /\S+@\S+\.\S+/;
+    return re.test(email);
+  }
   return (
     <>
       <form onSubmit={handleSubmit}>
@@ -164,7 +206,7 @@ const HustlerRegister = () => {
             <TextField
               required
               fullWidth
-              label="User Name is your Trademark"
+              label="User Name is your Trademark(Brand)"
               value={data.userName}
               onChange={handleUserName}
             />
@@ -177,36 +219,25 @@ const HustlerRegister = () => {
               onChange={handleSkill}
             />
           </Grid>
-          <Grid item xs={12} style={{ padding: "10px 20px" }}>
-            <SelectField
-              label="Choose your city"
-              options={cityOptions}
-              value={data.city}
-              onChange={handleCity}
-            />
-          </Grid>
+
           <Grid item xs={12} style={{ padding: "10px 20px" }}>
             <Grid container spacing={1}>
-              <Grid item xs={10}>
+              <Grid item xs={8}>
                 <TextField
-                  required
-                  type="number"
-                  fullWidth
-                  label="Pin Code"
-                  value={data.pinCode}
-                  onChange={handlePincode}
+                  label="Date of Birth"
+                  type="date"
+                  style={{ width: "100%" }}
+                  value={data?.dob.split("T")[0] || ""}
+                  onChange={handleDate}
                 />
               </Grid>
-              <Grid item xs={2}>
-                <IconButton
-                  style={{
-                    height: "100%",
-                    width: "100%",
-                    borderRadius: "0px",
-                  }}
-                >
-                  <AddLocationAltOutlinedIcon style={{ fontSize: "40px" }} />
-                </IconButton>
+              <Grid item xs={4}>
+                <SelectField
+                  label="Experience"
+                  options={expereinceOptions}
+                  value={data.experience}
+                  onChange={handleExperience}
+                />
               </Grid>
             </Grid>
           </Grid>
@@ -238,7 +269,7 @@ const HustlerRegister = () => {
           </Grid>
           <Grid item xs={12} style={{ padding: "10px 20px" }}>
             <TextField
-              label="Description(optional)"
+              label="Description about you(optional)"
               minRows={6}
               multiline
               value={data.description}
@@ -249,6 +280,63 @@ const HustlerRegister = () => {
               }}
             />
           </Grid>
+
+          <Grid item xs={12} style={{ padding: "10px 20px" }}>
+            <TextField
+              value={data.email || ""}
+              onChange={handleEmail}
+              label="Email (Optional)"
+              type="email"
+              style={{ width: "100%" }}
+            />
+          </Grid>
+          <Grid item xs={12} style={{ padding: "10px 20px" }}>
+            <SelectField
+              label="Choose your city"
+              options={cityOptions}
+              value={data.city}
+              onChange={handleCity}
+            />
+          </Grid>
+          <Grid item xs={12} style={{ padding: "10px 20px" }}>
+            <TextField
+              label="Address(optional)"
+              minRows={3}
+              multiline
+              value={data.address}
+              onChange={handleAddress}
+              style={{
+                width: "100%",
+                boxSizing: "border-box",
+              }}
+            />
+          </Grid>
+          <Grid item xs={12} style={{ padding: "10px 20px" }}>
+            <Grid container spacing={1}>
+              <Grid item xs={10}>
+                <TextField
+                  required
+                  type="number"
+                  fullWidth
+                  label="Pin Code"
+                  value={data.pinCode}
+                  onChange={handlePincode}
+                />
+              </Grid>
+              <Grid item xs={2}>
+                <IconButton
+                  style={{
+                    height: "100%",
+                    width: "100%",
+                    borderRadius: "0px",
+                  }}
+                >
+                  <AddLocationAltOutlinedIcon style={{ fontSize: "40px" }} />
+                </IconButton>
+              </Grid>
+            </Grid>
+          </Grid>
+
           <Grid item xs={12} style={{ padding: "10px 20px" }}>
             <Button
               type="submit"

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { Paper, Grid, CardActionArea } from "@mui/material";
@@ -11,6 +11,7 @@ import DetailsCard from "../common/DetailsCard";
 import { editHustler, clearProfile } from "../slices/profileSlice";
 import Loader from "../common/Loader";
 import Alert from "../common/Alert";
+import { getAllComments, toggleCommentLikes } from "../api/api";
 
 const HustlerProfile = () => {
   const user = useSelector((state) => state.profile.hustler);
@@ -20,9 +21,16 @@ const HustlerProfile = () => {
     message: null,
     type: null,
   });
+  const [comments, setComments] = useState([]);
+  const [expanded, setExpanded] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const userId = localStorage.getItem("userId");
+
+  useEffect(() => {
+    getCommentsNoLoader();
+    return () => {};
+  }, []);
 
   const editUser = () => {
     navigate("../../edit/hustler");
@@ -54,12 +62,71 @@ const HustlerProfile = () => {
   const handleClose = () => {
     setAlertInfo((s) => ({ ...s, open: false }));
   };
+  const handleExpandClick = async () => {
+    setExpanded(!expanded);
+  };
   const logout = () => {
     localStorage.clear();
     dispatch(clearProfile());
     navigate("../../");
   };
-
+  const getCommentsNoLoader = async () => {
+    await getAllComments(userId)
+      .then((res) => {
+        setComments(res.data);
+      })
+      .catch((err) => {
+        console.log(err);
+        setAlertInfo({
+          open: true,
+          message: "Server under maintainance , Try comments later!",
+          type: 1,
+        });
+      });
+  };
+  const getComments = async () => {
+    setLoader(true);
+    await getAllComments(userId)
+      .then((res) => {
+        setLoader(false);
+        setComments(res.data);
+      })
+      .catch((err) => {
+        console.log(err);
+        setLoader(false);
+        setAlertInfo({
+          open: true,
+          message: "Server under maintainance, Try again later!",
+          type: 1,
+        });
+      });
+  };
+  const handleLike = async (commentId) => {
+    setLoader(true);
+    if (userId) {
+      await toggleCommentLikes(commentId, { userId })
+        .then(async (res) => {
+          console.log(res);
+          await getComments();
+        })
+        .catch((err) => {
+          console.log(err);
+          setLoader(false);
+          setAlertInfo({
+            open: true,
+            message: "Server under maintainance, Try again later!",
+            type: 1,
+          });
+        });
+    } else {
+      setLoader(false);
+      setAlertInfo({
+        open: true,
+        message: "Server under maintainance, Try again later!",
+        type: 1,
+      });
+    }
+  };
   return (
     <>
       <Grid container style={{ paddingTop: "10px", paddingBottom: "64px" }}>
@@ -172,34 +239,12 @@ const HustlerProfile = () => {
         </Grid> */}
         <Grid item xs={12}>
           <DetailsCard
-            location={user?.city || "None"}
-            languages={user?.languages?.join(",") || "None"}
-            sic={user?.SIC || "Not Verified"}
-            details={user?.description}
+            user={user}
+            comments={comments}
+            expanded={expanded}
+            handleExpandClick={handleExpandClick}
+            handleLike={handleLike}
           />
-        </Grid>
-
-        <Grid
-          item
-          xs={12}
-          style={{
-            margin: "10px 10px",
-            padding: "5px",
-            border: "0.1px solid #d2d2d2",
-            borderRadius: "4px",
-            display: "flex",
-            justifyContent: "center",
-          }}
-        >
-          <Rating
-            value={user?.ratings?.value}
-            readOnly
-            max={10}
-            precision={1}
-            name="rating"
-            sx={{ fontSize: "30px" }}
-          />
-          <span style={{ fontSize: "1.6em" }}>({user?.ratings?.number})</span>
         </Grid>
         <Grid
           item
@@ -214,9 +259,7 @@ const HustlerProfile = () => {
             <span style={{ fontSize: "15px" }}>Saved Profiles</span>
           </CardActionArea> */}
           <CardActionArea style={{ padding: "5px 0px" }} onClick={() => {}}>
-            <span style={{ fontSize: "15px" }}>
-              {user?.coins} Coins [Earn more]
-            </span>
+            <span style={{ fontSize: "15px" }}>Guidelines</span>
           </CardActionArea>
           <CardActionArea style={{ padding: "5px 0px" }} onClick={() => {}}>
             <span style={{ fontSize: "15px" }}>Refer a friend</span>
@@ -246,7 +289,7 @@ const HustlerProfile = () => {
         message={alertInfo.message}
         type={alertInfo.type}
         handleClose={handleClose}
-        position={["bottom", "left"]}
+        position={["top", "left"]}
       />
     </>
   );

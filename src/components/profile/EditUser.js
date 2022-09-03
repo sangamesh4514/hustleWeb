@@ -60,6 +60,13 @@ const EditUser = () => {
   const handleClose = () => {
     setAlertInfo((s) => ({ ...s, open: false }));
   };
+  const handleEmail = (e) => {
+    setUser((s) => ({ ...s, email: e.target.value }));
+  };
+  function validateEmail(email) {
+    var re = /\S+@\S+\.\S+/;
+    return re.test(email);
+  }
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -72,6 +79,16 @@ const EditUser = () => {
       });
     } else {
       setLoader(true);
+      if (user.email && !validateEmail(user.email)) {
+        setLoader(false);
+
+        setAlertInfo({
+          open: true,
+          message: "Please enter a valid email!",
+          type: 1,
+        });
+        return;
+      }
       dispatch(editUser({ userId, data: user }))
         .unwrap()
         .then((res) => {
@@ -126,6 +143,24 @@ const EditUser = () => {
               options={genderOptions}
               value={user?.gender || ""}
               onChange={handleGender}
+            />
+          </Grid>
+
+          <Grid item xs={12} style={{ padding: "10px 20px" }}>
+            <TextField
+              value={user?.email || ""}
+              onChange={handleEmail}
+              label="Email"
+              type="email"
+              style={{ width: "100%" }}
+            />
+          </Grid>
+          <Grid item xs={12} style={{ padding: "10px 20px" }}>
+            <TextField
+              label="Phone Number"
+              style={{ width: "100%" }}
+              value={user?.phoneNumber || ""}
+              disabled={true}
             />
           </Grid>
           <Grid item xs={12} style={{ padding: "10px 20px" }}>

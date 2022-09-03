@@ -119,6 +119,7 @@ const Map = () => {
       )
         .unwrap()
         .then((res) => {
+          console.log(res);
           navigate("/home");
         })
         .catch((err) => {
@@ -140,6 +141,7 @@ const Map = () => {
       )
         .unwrap()
         .then((res) => {
+          console.log(res);
           navigate("/home");
         })
         .catch((err) => {

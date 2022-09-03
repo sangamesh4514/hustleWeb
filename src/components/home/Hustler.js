@@ -1,22 +1,31 @@
 import React, { useState, useEffect } from "react";
-import { Grid, Button, Paper, IconButton } from "@mui/material";
+import { Grid, Button, IconButton } from "@mui/material";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import { useParams, useNavigate } from "react-router-dom";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import BookmarkBorderOutlinedIcon from "@mui/icons-material/BookmarkBorderOutlined";
-import BookmarkOutlinedIcon from "@mui/icons-material/BookmarkOutlined";
-import Backdrop from "@mui/material/Backdrop";
-import CircularProgress from "@mui/material/CircularProgress";
 import Rating from "@mui/material/Rating";
 import Avatar from "@mui/material/Avatar";
 import PersonIcon from "@mui/icons-material/Person";
-import { getHustler } from "../api/api";
-import DetailsCard from "../common/DetailsCard";
+import {
+  createComment,
+  deleteComment,
+  editComment,
+  getAllComments,
+  getHustler,
+  toggleCommentLikes,
+} from "../api/api";
 import { styled } from "@mui/material/styles";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import Collapse from "@mui/material/Collapse";
 import Tooltip from "@mui/material/Tooltip";
+import AddIcon from "@mui/icons-material/Add";
+import AddComment from "./AddComment";
+import Loader from "../common/Loader";
+import Alert from "../common/Alert";
+import { useSelector } from "react-redux";
+import CommentCard from "../common/CommentCard";
 
 const ExpandMore = styled((props) => {
   const { expand, ...other } = props;
@@ -30,44 +39,187 @@ const ExpandMore = styled((props) => {
 }));
 
 const Hustler = () => {
-  const [user, setUser] = useState(null);
+  const [hustler, setHustler] = useState(null);
   const [loader, setLoader] = useState(false);
+  const [alertInfo, setAlertInfo] = useState(false);
   const [expanded, setExpanded] = useState(false);
-  const { userId } = useParams();
+  const [openComment, setOpenComment] = useState(false);
+  const [comments, setComments] = useState([]);
+  const profile = useSelector((state) => state.profile);
+  const { hustlerId } = useParams();
   const navigate = useNavigate();
+  const userType = Number(localStorage.getItem("userType"));
+  const userId = localStorage.getItem("userId");
 
   useEffect(() => {
-    getUser();
+    getHustlerData();
     return () => {};
   }, []);
 
-  const getUser = async () => {
+  console.log(hustler);
+  const getHustlerData = async () => {
     try {
       setLoader(true);
-      const res = await getHustler(userId);
-      console.log(res.data);
-      setUser(res.data);
-      setLoader(false);
+      const res = await getHustler(hustlerId);
+      console.log(res?.data);
+      setHustler(res?.data);
+      getComments();
     } catch (error) {
       setLoader(false);
+      setAlertInfo({
+        open: true,
+        message: "Server under maintainance, Try again later!",
+        type: 1,
+      });
       console.log(error);
     }
   };
+  console.log(comments);
 
-  const handleExpandClick = () => {
+  const getComments = async () => {
+    setLoader(true);
+    await getAllComments(hustlerId)
+      .then((res) => {
+        setLoader(false);
+        setComments(res.data);
+      })
+      .catch((err) => {
+        console.log(err);
+        setLoader(false);
+        setAlertInfo({
+          open: true,
+          message: "Server under maintainance, Try again later!",
+          type: 1,
+        });
+      });
+  };
+
+  const handleOpenComment = () => {
+    setOpenComment(false);
+  };
+  const handleExpandClick = async () => {
     setExpanded(!expanded);
   };
 
   const handleBack = () => {
     navigate(-1);
   };
-  const handleClose = () => {
-    setLoader(false);
+  const handleAlertClose = () => {
+    setAlertInfo((s) => ({ ...s, open: false }));
   };
 
   const handleCall = () => {
-    console.log(user.phoneNumber);
-    window.open(`tel:${user.phoneNumber}`, "_self");
+    window.open(`tel:${hustler.phoneNumber}`, "_self");
+  };
+
+  const handleSubmit = async (rating, comment) => {
+    let author;
+    if (userType == 0) {
+      author = profile.user;
+    } else {
+      author = profile.hustler;
+    }
+    if (rating < 1) {
+      setAlertInfo({
+        open: true,
+        message: "Please provide a rating!",
+        type: 2,
+      });
+    } else if (comment.replace(/\s/g, "").length < 10) {
+      setAlertInfo({
+        open: true,
+        message: "Comment should be atLeast 10 characters!",
+        type: 2,
+      });
+    } else if (!author.name) {
+      setAlertInfo({
+        open: true,
+        message: "Please add your name before rating!",
+        type: 2,
+      });
+    } else {
+      handleOpenComment();
+      setLoader(true);
+
+      console.log(author);
+      const data = {
+        authorId: author.userId,
+        authorName: author.name,
+        rating,
+        authorPhoneNumber: author.phoneNumber,
+        authorImage: author.image,
+        content: comment,
+      };
+
+      await createComment(hustlerId, data)
+        .then(async (res) => {
+          console.log(res);
+          // setAlertInfo({
+          //   open: true,
+          //   message: "Comment added successfully!",
+          //   type: 0,
+          // });
+          await getHustlerData();
+        })
+        .catch((err) => {
+          console.log(err);
+          setLoader(false);
+          setAlertInfo({
+            open: true,
+            message: "Server under maintainance, Try again later!",
+            type: 1,
+          });
+        });
+    }
+  };
+
+  const handleLike = async (commentId) => {
+    setLoader(true);
+    if (userId) {
+      await toggleCommentLikes(commentId, { userId })
+        .then(async (res) => {
+          console.log(res);
+          await getComments();
+        })
+        .catch((err) => {
+          console.log(err);
+          setLoader(false);
+          setAlertInfo({
+            open: true,
+            message: "Server under maintainance, Try again later!",
+            type: 1,
+          });
+        });
+    } else {
+      setLoader(false);
+      setAlertInfo({
+        open: true,
+        message: "Server under maintainance, Try again later!",
+        type: 1,
+      });
+    }
+  };
+
+  const handleEdit = async (id) => {
+    //dont add , it might create issues between users for v1
+  };
+
+  const handleDelete = async (id) => {
+    setLoader(true);
+    await deleteComment(id)
+      .then(async (res) => {
+        console.log(res);
+        await getHustlerData();
+      })
+      .catch((err) => {
+        setLoader(false);
+        setAlertInfo({
+          open: true,
+          message: "Server under maintainance, Try again later!",
+          type: 1,
+        });
+        console.log(err);
+      });
   };
 
   return (
@@ -105,7 +257,7 @@ const Hustler = () => {
                 alignItems: "center",
               }}
             >
-              {user?.userName}
+              {hustler?.userName}
             </Grid>
             <Grid item xs={2}>
               <Button
@@ -121,7 +273,7 @@ const Hustler = () => {
           </Grid>
         </Toolbar>
       </AppBar>
-      {user ? (
+      {hustler ? (
         <Grid container style={{ paddingTop: "60px", paddingBottom: "64px" }}>
           <Grid item xs={12}>
             <Grid container style={{ padding: "10px" }}>
@@ -138,48 +290,47 @@ const Hustler = () => {
                 <Avatar sx={{ width: 80, height: 80 }}>
                   <PersonIcon />
                 </Avatar>
-                <span>{user?.name}</span>
+                <span>{hustler?.name}</span>
               </Grid>
               <Grid
                 item
-                xs={8}
+                xs={5}
                 style={{
                   height: "100px",
                   display: "flex",
-                  justifyContent: "space-evenly",
-                  padding: "0px 20px",
+                  flexDirection: "column",
+                  justifyContent: "center",
+                  padding: "1px 10px",
                 }}
               >
-                <Grid container>
-                  <Grid
-                    item
-                    xs={12}
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                    }}
-                  >
-                    <span style={{ height: "27px", fontSize: "25px" }}>
-                      {user?.skill || "-"}
-                    </span>
-                    {/* <Switch checked={user?.status} onChange={handleStatus} /> */}
-                  </Grid>
-                  <Grid
-                    item
-                    xs={12}
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "top",
-                    }}
-                  >
-                    <span style={{ fontSize: "20px" }}>Skill</span>
-                    <span style={{ fontSize: "20px", width: "50px" }}>
-                      Status
-                    </span>
-                  </Grid>
-                </Grid>
+                <span style={{ fontSize: "25px", textTransform: "capitalize" }}>
+                  {hustler?.skill || "-"}
+                </span>
+
+                <span style={{ fontSize: "20px", paddingTop: "10px" }}>
+                  Skill
+                </span>
+              </Grid>
+              <Grid
+                item
+                xs={3}
+                style={{
+                  height: "100px",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "center",
+                  padding: "10px 10px",
+                }}
+              >
+                <span style={{ fontSize: "25px" }}>{hustler?.experience}+</span>
+                <span
+                  style={{
+                    fontSize: "20px",
+                    paddingTop: "10px",
+                  }}
+                >
+                  Exp
+                </span>
               </Grid>
             </Grid>
           </Grid>
@@ -214,7 +365,7 @@ const Hustler = () => {
                 >
                   {" "}
                   <span style={{ whiteSpace: "pre-line" }}>
-                    {user.description}
+                    {hustler.description}
                   </span>
                 </Grid>
                 <Grid
@@ -236,7 +387,7 @@ const Hustler = () => {
                       <span>City - </span>
                     </Grid>
                     <Grid item xs={8}>
-                      <span>{user.city}</span>
+                      <span>{hustler.city}</span>
                     </Grid>
                   </Grid>
                 </Grid>
@@ -252,7 +403,7 @@ const Hustler = () => {
                       <span>Langauages - </span>
                     </Grid>
                     <Grid item xs={8}>
-                      <span>{user.languages.join(",")}</span>
+                      <span>{hustler.languages.join(",")}</span>
                     </Grid>
                   </Grid>
                 </Grid>
@@ -270,8 +421,8 @@ const Hustler = () => {
                       </Tooltip>
                     </Grid>
                     <Grid item xs={8}>
-                      {user.SIC ? (
-                        <span>{user.SIC}</span>
+                      {hustler.SIC ? (
+                        <span>{hustler.SIC}</span>
                       ) : (
                         <span>Not Verified</span>
                       )}
@@ -298,15 +449,15 @@ const Hustler = () => {
                       }}
                     >
                       <Rating
-                        value={user?.ratings?.value}
+                        value={hustler?.ratingValue}
                         readOnly
-                        max={10}
-                        precision={1}
+                        max={5}
+                        precision={0.1}
                         name="rating"
                         sx={{ fontSize: "18px", color: "green" }}
                       />
                       <span style={{ fontSize: "15px" }}>
-                        ({user?.ratings?.number})
+                        ({hustler?.ratingsCount})
                       </span>
                     </Grid>
                   </Grid>
@@ -318,26 +469,60 @@ const Hustler = () => {
                     borderTop: "0.1px solid #d2d2d2",
                   }}
                 ></Grid>
-                <Grid
-                  item
-                  xs={12}
-                  style={{
-                    padding: "5px 0px 0px 10px",
-                  }}
-                >
-                  <span>Reviews and Comments ({user.comments.length - 1})</span>
-                  <ExpandMore
-                    expand={expanded}
-                    onClick={handleExpandClick}
-                    aria-expanded={expanded}
-                    aria-label="show more"
-                    style={{ padding: "5px" }}
+                <Grid item xs={12} style={{ padding: "5px 5px 0px 5px" }}>
+                  <Grid container>
+                    <Grid
+                      item
+                      xs={9}
+                      style={{ display: "flex", alignItems: "center" }}
+                    >
+                      <span>Reviews and Comments ({hustler.ratingsCount})</span>
+                    </Grid>
+                    <Grid item xs={2}>
+                      <ExpandMore
+                        expand={expanded}
+                        onClick={handleExpandClick}
+                        aria-expanded={expanded}
+                        aria-label="show more"
+                        style={{ padding: "2px" }}
+                        disabled={!comments?.length}
+                      >
+                        <ExpandMoreIcon />
+                      </ExpandMore>
+                    </Grid>
+                    <Grid item xs={1}>
+                      {hustlerId !== userId ? (
+                        <IconButton
+                          style={{ padding: "2px" }}
+                          onClick={(e) => setOpenComment(true)}
+                        >
+                          <AddIcon style={{ fontSize: "25px" }} />
+                        </IconButton>
+                      ) : null}
+                    </Grid>
+                  </Grid>
+                  <Collapse
+                    in={expanded}
+                    timeout="auto"
+                    unmountOnExit
+                    sx={{
+                      // maxHeight: "400px",
+                      overflow: "scroll",
+                      paddingTop: "5px",
+                    }}
                   >
-                    <ExpandMoreIcon />
-                  </ExpandMore>
-
-                  <Collapse in={expanded} timeout="auto" unmountOnExit>
-                    <span>show all comments</span>
+                    {comments &&
+                      comments.map((comment, index) => (
+                        <CommentCard
+                          comment={comment}
+                          key={comment.commentId}
+                          userId={userId}
+                          index={index}
+                          handleLike={handleLike}
+                          handleEdit={handleEdit}
+                          handleDelete={handleDelete}
+                        />
+                      ))}
                   </Collapse>
                 </Grid>
               </Grid>
@@ -356,16 +541,18 @@ const Hustler = () => {
         </Grid>
       ) : null}
 
-      <Backdrop
-        sx={{
-          color: "#fff",
-          zIndex: (theme) => theme.zIndex.drawer + 1,
-        }}
-        open={loader}
-        //onClick={handleClose}
-      >
-        <CircularProgress color="inherit" />
-      </Backdrop>
+      <AddComment
+        open={openComment}
+        handleClose={handleOpenComment}
+        handleSubmit={handleSubmit}
+      />
+      <Loader open={loader} />
+      <Alert
+        open={alertInfo.open}
+        message={alertInfo.message}
+        type={alertInfo.type}
+        handleClose={handleAlertClose}
+      />
     </>
   );
 };

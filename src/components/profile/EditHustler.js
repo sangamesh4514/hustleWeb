@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { Grid, IconButton } from "@mui/material";
@@ -15,6 +15,7 @@ import AddLocationAltOutlinedIcon from "@mui/icons-material/AddLocationAltOutlin
 import Loader from "../common/Loader";
 import Alert from "../common/Alert";
 import { editHustler } from "../slices/profileSlice";
+import { skillOptions, expereinceOptions } from "../home/data";
 
 const EditHustler = () => {
   const [user, setUser] = useState(
@@ -34,10 +35,6 @@ const EditHustler = () => {
   const navigate = useNavigate();
   const theme = useTheme();
   const languagesOptions = ["English", "Kannada", "Hindi"];
-  const skillOptions = {
-    mechanic: "Mechanic",
-    painter: "Painter",
-  };
   const cityOptions = {
     bangalore: "Bangalore",
     mysore: "Mysore",
@@ -52,6 +49,15 @@ const EditHustler = () => {
       },
     },
   };
+
+  useEffect(() => {
+    if (!user || !languages) {
+      navigate("/home/me");
+    }
+
+    return () => {};
+  }, []);
+
   const handleClose = () => {
     setAlertInfo((s) => ({ ...s, open: false }));
   };
@@ -69,6 +75,23 @@ const EditHustler = () => {
   };
   const handleDescription = (e) => {
     setUser((s) => ({ ...s, description: e.target.value }));
+  };
+  const handleAddress = (e) => {
+    setUser((s) => {
+      return { ...s, address: e.target.value };
+    });
+  };
+  const handleExperience = (e) => {
+    setUser((s) => {
+      return { ...s, experience: e.target.value };
+    });
+  };
+  const handleDate = (e) => {
+    setUser((s) => ({ ...s, dob: e.target.value }));
+  };
+
+  const handleEmail = (e) => {
+    setUser((s) => ({ ...s, email: e.target.value }));
   };
   const updateHustler = (e) => {
     e.preventDefault();
@@ -106,6 +129,16 @@ const EditHustler = () => {
         type: 1,
       });
     } else {
+      if (user.email && !validateEmail(user.email)) {
+        setLoader(false);
+
+        setAlertInfo({
+          open: true,
+          message: "Please enter a valid email!",
+          type: 1,
+        });
+        return;
+      }
       setLoader(true);
       console.log(user, languages);
       dispatch(editHustler({ userId, data: { ...user, languages } }))
@@ -147,6 +180,10 @@ const EditHustler = () => {
           : theme.typography.fontWeightMedium,
     };
   }
+  function validateEmail(email) {
+    var re = /\S+@\S+\.\S+/;
+    return re.test(email);
+  }
   return (
     <>
       <form onSubmit={updateHustler}>
@@ -168,36 +205,38 @@ const EditHustler = () => {
             />
           </Grid>
           <Grid item xs={12} style={{ padding: "10px 20px" }}>
-            <SelectField
-              label="Choose your city"
-              options={cityOptions}
-              value={user?.city || ""}
-              onChange={handleCity}
-            />
-          </Grid>
-          <Grid item xs={12} style={{ padding: "10px 20px" }}>
             <Grid container spacing={1}>
-              <Grid item xs={10}>
+              <Grid item xs={8}>
                 <TextField
-                  type="number"
-                  fullWidth
-                  label="Pin Code"
-                  value={user?.pinCode || ""}
-                  onChange={handlePincode}
+                  label="Date of Birth"
+                  type="date"
+                  style={{ width: "100%" }}
+                  value={user?.dob.split("T")[0] || ""}
+                  onChange={handleDate}
                 />
               </Grid>
-              <Grid item xs={2}>
-                <IconButton
-                  style={{
-                    height: "100%",
-                    width: "100%",
-                    borderRadius: "0px",
-                  }}
-                >
-                  <AddLocationAltOutlinedIcon style={{ fontSize: "40px" }} />
-                </IconButton>
+              <Grid item xs={4}>
+                <SelectField
+                  label="Experience"
+                  options={expereinceOptions}
+                  value={user.experience}
+                  onChange={handleExperience}
+                />
               </Grid>
             </Grid>
+          </Grid>
+          <Grid item xs={12} style={{ padding: "10px 20px" }}>
+            <TextField
+              label="Description"
+              minRows={6}
+              multiline
+              style={{
+                width: "100%",
+                boxSizing: "border-box",
+              }}
+              value={user?.description || ""}
+              onChange={handleDescription}
+            />
           </Grid>
           <Grid item xs={12} style={{ padding: "10px 20px" }}>
             <FormControl fullWidth>
@@ -225,19 +264,69 @@ const EditHustler = () => {
               </Select>
             </FormControl>
           </Grid>
+
           <Grid item xs={12} style={{ padding: "10px 20px" }}>
             <TextField
-              label="Description"
-              minRows={6}
+              value={user.email || ""}
+              onChange={handleEmail}
+              label="Email"
+              type="email"
+              style={{ width: "100%" }}
+            />
+          </Grid>
+          <Grid item xs={12} style={{ padding: "10px 20px" }}>
+            <TextField
+              label="Phone Number"
+              style={{ width: "100%" }}
+              value={user?.phoneNumber || ""}
+              disabled={true}
+            />
+          </Grid>
+          <Grid item xs={12} style={{ padding: "10px 20px" }}>
+            <SelectField
+              label="Choose your city"
+              options={cityOptions}
+              value={user?.city || ""}
+              onChange={handleCity}
+            />
+          </Grid>
+          <Grid item xs={12} style={{ padding: "10px 20px" }}>
+            <TextField
+              label="Address"
               multiline
+              value={user.address}
+              onChange={handleAddress}
               style={{
                 width: "100%",
                 boxSizing: "border-box",
               }}
-              value={user?.description || ""}
-              onChange={handleDescription}
             />
           </Grid>
+          <Grid item xs={12} style={{ padding: "10px 20px" }}>
+            <Grid container spacing={1}>
+              <Grid item xs={10}>
+                <TextField
+                  type="number"
+                  fullWidth
+                  label="Pin Code"
+                  value={user?.pinCode || ""}
+                  onChange={handlePincode}
+                />
+              </Grid>
+              <Grid item xs={2}>
+                <IconButton
+                  style={{
+                    height: "100%",
+                    width: "100%",
+                    borderRadius: "0px",
+                  }}
+                >
+                  <AddLocationAltOutlinedIcon style={{ fontSize: "40px" }} />
+                </IconButton>
+              </Grid>
+            </Grid>
+          </Grid>
+
           <Grid item xs={12} style={{ padding: "10px 20px" }}>
             <Button
               type="submit"

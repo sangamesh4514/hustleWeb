@@ -21,7 +21,7 @@ const UserCard = ({ user, handleUser }) => {
             </Avatar>
           )}
         </Grid>
-        <Grid item xs={8}>
+        <Grid item xs={7}>
           <div
             style={{
               display: "flex",
@@ -75,8 +75,8 @@ const UserCard = ({ user, handleUser }) => {
             </div>
           </div>
         </Grid>
-        <Grid item xs={2}>
-          <div style={{ paddingRight: "10px" }}>
+        <Grid item xs={3}>
+          <div style={{ padding: "0px 10px" }}>
             <div
               style={{
                 borderBottom: "0.1px solid #d2d2d2",
@@ -85,7 +85,9 @@ const UserCard = ({ user, handleUser }) => {
                 alignItems: "center",
               }}
             >
-              <span style={{ fontSize: "22px" }}>{user.ratings.value}</span>
+              <span style={{ fontSize: "22px" }}>
+                {user.ratingValue.toFixed(1)}
+              </span>
               <Rating
                 value={1}
                 readOnly
@@ -93,9 +95,16 @@ const UserCard = ({ user, handleUser }) => {
                 sx={{ fontSize: "18px", color: "green" }}
               />
             </div>
-            <div>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                paddingTop: "3px",
+              }}
+            >
               <span style={{ fontSize: "10px" }}>
-                {user.ratings.number} Reviews
+                {user.ratingsCount} Reviews
               </span>
             </div>
           </div>
