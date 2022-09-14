@@ -68,7 +68,7 @@ const Home = () => {
             .unwrap()
             .then((res) => {
               setLoader(false);
-              if (res.data.location.coordinates.length > 0) {
+              if (res?.data?.location?.coordinates?.length > 0) {
                 setDrawerState(false);
               } else {
                 setDrawerState(true);

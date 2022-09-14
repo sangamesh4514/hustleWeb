@@ -12,6 +12,7 @@ import { editHustler, clearProfile } from "../slices/profileSlice";
 import Loader from "../common/Loader";
 import Alert from "../common/Alert";
 import { getAllComments, toggleCommentLikes } from "../api/api";
+import { skillOptions } from "../home/data";
 
 const HustlerProfile = () => {
   const user = useSelector((state) => state.profile.hustler);
@@ -163,7 +164,7 @@ const HustlerProfile = () => {
                 height: "100px",
                 display: "flex",
                 justifyContent: "space-evenly",
-                padding: "0px 20px",
+                padding: "0px 10px",
               }}
             >
               <Grid container>
@@ -172,28 +173,44 @@ const HustlerProfile = () => {
                   xs={12}
                   style={{
                     display: "flex",
-                    justifyContent: "space-between",
+                    //justifyContent: "space-between",
                     alignItems: "center",
                   }}
                 >
-                  <span style={{ height: "27px", fontSize: "25px" }}>
-                    {user?.skill || "-"}
-                  </span>
-                  <Switch checked={user?.status} onChange={handleStatus} />
+                  <Grid container>
+                    <Grid item xs={8}>
+                      <span
+                        style={{
+                          fontSize: "25px",
+                        }}
+                      >
+                        {skillOptions[user.skill] || "-"}
+                      </span>
+                    </Grid>
+                    <Grid item xs={4}>
+                      <Switch checked={user?.status} onChange={handleStatus} />
+                    </Grid>
+                  </Grid>
                 </Grid>
                 <Grid
                   item
                   xs={12}
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "top",
-                  }}
+                  // style={{
+                  //   display: "flex",
+                  //   justifyContent: "space-between",
+                  //    alignItems: "top",
+                  // }}
                 >
-                  <span style={{ fontSize: "20px" }}>Skill</span>
-                  <span style={{ fontSize: "20px", width: "50px" }}>
-                    Status
-                  </span>
+                  <Grid container>
+                    <Grid item xs={8}>
+                      <span style={{ fontSize: "20px" }}>Skill</span>
+                    </Grid>
+                    <Grid item xs={4}>
+                      <span style={{ fontSize: "20px", width: "50px" }}>
+                        Status
+                      </span>
+                    </Grid>
+                  </Grid>
                 </Grid>
               </Grid>
             </Grid>

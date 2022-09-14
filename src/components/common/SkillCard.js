@@ -16,12 +16,7 @@ const SkillCard = ({ name, image, handleSkill }) => {
         }}
       >
         <CardActionArea>
-          <CardMedia
-            component="img"
-            height="150"
-            image={image}
-            alt="green iguana"
-          />
+          <CardMedia component="img" height="150" image={image} />
 
           <Typography gutterBottom variant="h5" component="div">
             {name}

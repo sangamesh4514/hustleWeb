@@ -13,6 +13,7 @@ import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import axios from "axios";
 import { getSkilledHustlers } from "../api/api";
+import CustomSlider from "../common/Slider";
 
 const Hustlers = () => {
   const [loader, setLoader] = useState(false);
@@ -152,7 +153,7 @@ const Hustlers = () => {
                   textTransform: "capitalize",
                 }}
               >
-                {skill}
+                <span>{skill}</span>
               </Grid>
               <Grid item xs={3}>
                 <Button
@@ -193,7 +194,11 @@ const Hustlers = () => {
             </Grid>
           </Toolbar>
         </AppBar>
+
         <Grid container style={{ paddingTop: "60px", paddingBottom: "64px" }}>
+          {/* <Grid item xs={12} style={{ padding: "0px 10px" }}>
+            <CustomSlider />
+          </Grid> */}
           <Grid item xs={12}>
             {users?.length ? (
               users.map((user, index) => {

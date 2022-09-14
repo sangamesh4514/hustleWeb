@@ -26,6 +26,7 @@ import Loader from "../common/Loader";
 import Alert from "../common/Alert";
 import { useSelector } from "react-redux";
 import CommentCard from "../common/CommentCard";
+import { skillOptions } from "./data";
 
 const ExpandMore = styled((props) => {
   const { expand, ...other } = props;
@@ -294,43 +295,66 @@ const Hustler = () => {
               </Grid>
               <Grid
                 item
-                xs={5}
+                xs={8}
                 style={{
                   height: "100px",
                   display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "center",
-                  padding: "1px 10px",
+                  justifyContent: "space-evenly",
+                  padding: "0px 10px",
                 }}
               >
-                <span style={{ fontSize: "25px", textTransform: "capitalize" }}>
-                  {hustler?.skill || "-"}
-                </span>
-
-                <span style={{ fontSize: "20px", paddingTop: "10px" }}>
-                  Skill
-                </span>
-              </Grid>
-              <Grid
-                item
-                xs={3}
-                style={{
-                  height: "100px",
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "center",
-                  padding: "10px 10px",
-                }}
-              >
-                <span style={{ fontSize: "25px" }}>{hustler?.experience}+</span>
-                <span
-                  style={{
-                    fontSize: "20px",
-                    paddingTop: "10px",
-                  }}
-                >
-                  Exp
-                </span>
+                <Grid container>
+                  <Grid
+                    item
+                    xs={12}
+                    style={{
+                      display: "flex",
+                      //justifyContent: "space-between",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Grid container>
+                      <Grid item xs={8}>
+                        <span
+                          style={{
+                            fontSize: "25px",
+                          }}
+                        >
+                          {skillOptions[hustler.skill] || "-"}
+                        </span>
+                      </Grid>
+                      <Grid item xs={4}>
+                        <span
+                          style={{
+                            fontSize: "25px",
+                          }}
+                        >
+                          {hustler.experience || "-"}+
+                        </span>
+                      </Grid>
+                    </Grid>
+                  </Grid>
+                  <Grid
+                    item
+                    xs={12}
+                    // style={{
+                    //   display: "flex",
+                    //   justifyContent: "space-between",
+                    //    alignItems: "top",
+                    // }}
+                  >
+                    <Grid container>
+                      <Grid item xs={8}>
+                        <span style={{ fontSize: "20px" }}>Skill</span>
+                      </Grid>
+                      <Grid item xs={4}>
+                        <span style={{ fontSize: "20px", width: "50px" }}>
+                          Exp
+                        </span>
+                      </Grid>
+                    </Grid>
+                  </Grid>
+                </Grid>
               </Grid>
             </Grid>
           </Grid>
