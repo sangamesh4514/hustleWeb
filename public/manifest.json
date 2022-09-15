@@ -3,9 +3,15 @@
     "name": "Hustle",
     "icons": [
         {
-            "src": "/images/logo.png",
+            "src": "/images/logo4.png",
             "type": "image/png",
-            "sizes": "1024x1024",
+            "sizes": "1200x1200",
+            "purpose": "any"
+        },
+        {
+            "src": "/images/logo2.png",
+            "type": "image/png",
+            "sizes": "1200x1200",
             "purpose": "any"
         }
     ],

@@ -1,22 +1,13 @@
-import { useState, useMemo, useCallback, useRef, useEffect } from "react";
-import {
-  GoogleMap,
-  Marker,
-  useJsApiLoader,
-  Autocomplete,
-} from "@react-google-maps/api";
-import usePlacesAutocomplete, {
-  getGeocode,
-  getLatLng,
-} from "use-places-autocomplete";
-import { useParams, useNavigate } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
-import { Grid } from "@mui/material";
+import { useState, useMemo, useRef, useEffect } from "react";
+import { GoogleMap } from "@react-google-maps/api";
+import { getGeocode } from "use-places-autocomplete";
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import RoomOutlinedIcon from "@mui/icons-material/RoomOutlined";
-import MyLocationRoundedIcon from "@mui/icons-material/MyLocationRounded";
 import Button from "../common/Button";
-import { addLocation, editUser, editHustler } from "../slices/profileSlice";
+import { Grid } from "@mui/material";
+import { editUser, editHustler } from "../slices/profileSlice";
 import Loader from "../common/Loader";
 
 const Map = () => {
