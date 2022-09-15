@@ -1,17 +1,17 @@
 {
-    "short_name": "Hustle App",
-    "name": "Hustle",
+    "short_name": "Hustle",
+    "name": "Hustle : Hire Pro",
     "icons": [
-        {
-            "src": "/images/logo4.png",
-            "type": "image/png",
-            "sizes": "1200x1200",
-            "purpose": "any"
-        },
         {
             "src": "/images/logo2.png",
             "type": "image/png",
-            "sizes": "1200x1200",
+            "sizes": "512x512",
+            "purpose": "any"
+        },
+        {
+            "src": "/images/logo4.png",
+            "type": "image/png",
+            "sizes": "2480x1200",
             "purpose": "any"
         }
     ],
