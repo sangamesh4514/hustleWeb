@@ -3,13 +3,13 @@
     "name": "Hustle : Hire Pro",
     "icons": [
         {
-            "src": "/images/logo2.png",
+            "src": "/images/logo4.png",
             "type": "image/png",
             "sizes": "512x512",
             "purpose": "any"
         },
         {
-            "src": "/images/logo2.png",
+            "src": "/images/logo4.png",
             "type": "image/png",
             "sizes": "2480x1200",
             "purpose": "any"
