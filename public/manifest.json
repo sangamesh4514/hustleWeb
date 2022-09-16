@@ -21,7 +21,7 @@
             "purpose": "any"
         },
         {
-            "src": "/images/logo1512.png",
+            "src": "/images/logo512.png",
             "type": "image/png",
             "sizes": "512x512",
             "purpose": "any"
@@ -35,6 +35,6 @@
     ],
     "start_url": ".",
     "display": "standalone",
-    "theme_color": "#ffffff",
+    "theme_color": "#f4f9fa",
     "background_color": "#f4f9fa"
 }
