@@ -21,13 +21,13 @@
             "purpose": "any"
         },
         {
-            "src": "/images/logo512.png",
+            "src": "/images/logo1512.png",
             "type": "image/png",
             "sizes": "512x512",
             "purpose": "any"
         },
         {
-            "src": "/images/logo1024.png",
+            "src": "/images/logo11024.png",
             "type": "image/png",
             "sizes": "1024x1024",
             "purpose": "any"
