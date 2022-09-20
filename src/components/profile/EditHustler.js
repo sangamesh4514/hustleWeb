@@ -15,7 +15,12 @@ import AddLocationAltOutlinedIcon from "@mui/icons-material/AddLocationAltOutlin
 import Loader from "../common/Loader";
 import Alert from "../common/Alert";
 import { editHustler } from "../slices/profileSlice";
-import { skillOptions, expereinceOptions } from "../home/data";
+import {
+  skillOptions,
+  expereinceOptions,
+  languagesOptions,
+  cityOptions,
+} from "../home/data";
 
 const EditHustler = () => {
   const [user, setUser] = useState(
@@ -34,11 +39,6 @@ const EditHustler = () => {
   const userId = localStorage.getItem("userId");
   const navigate = useNavigate();
   const theme = useTheme();
-  const languagesOptions = ["English", "Kannada", "Hindi"];
-  const cityOptions = {
-    bangalore: "Bangalore",
-    mysore: "Mysore",
-  };
   const ITEM_HEIGHT = 48;
   const ITEM_PADDING_TOP = 8;
   const MenuProps = {

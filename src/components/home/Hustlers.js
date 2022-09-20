@@ -6,30 +6,35 @@ import CircularProgress from "@mui/material/CircularProgress";
 import UserCard from "../common/UserCard";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import FilterListIcon from "@mui/icons-material/FilterList";
-import { Grid, Button, Paper } from "@mui/material";
+import { Grid, Button, Paper, Card, Slider, Drawer } from "@mui/material";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import axios from "axios";
 import { getSkilledHustlers } from "../api/api";
-import CustomSlider from "../common/Slider";
+import { styled, useTheme } from "@mui/material/styles";
+import ListAltRoundedIcon from "@mui/icons-material/ListAltRounded";
+import Instructions from "./Instructions";
 
 const Hustlers = () => {
   const [loader, setLoader] = useState(false);
+  const [sliderValue, setSliderValue] = useState(10);
   const [users, setUsers] = useState([]);
+  const [openInstructions, setOpenInstructions] = useState(false);
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
   const location = useSelector((state) => state.profile.location);
   const { skill } = useParams();
   const navigate = useNavigate();
+  const theme = useTheme();
 
   useEffect(() => {
-    getHustlers();
+    getHustlers(10);
     return () => {};
   }, []);
 
-  const getHustlers = async (range = 15) => {
+  const getHustlers = async (range = 10) => {
     try {
       setLoader(true);
       const res = await getSkilledHustlers(skill, { ...location, range });
@@ -43,7 +48,7 @@ const Hustlers = () => {
         );
       }
       res.data.sort(
-        (a, b) => b.ratings.value - a.ratings.value || a.distance - b.distance
+        (a, b) => b.ratingValue - a.ratingValue || a.distance - b.distance
       );
       setUsers(res.data);
       setLoader(false);
@@ -78,7 +83,7 @@ const Hustlers = () => {
   const sortByRating = () => {
     setUsers((s) => {
       s.sort(
-        (a, b) => b.ratings.value - a.ratings.value || a.distance - b.distance
+        (a, b) => b.ratingValue - a.ratingValue || a.distance - b.distance
       );
       //console.log(s);
       return [...s];
@@ -88,7 +93,7 @@ const Hustlers = () => {
   const sortByDistance = () => {
     setUsers((s) => {
       s.sort(
-        (a, b) => a.distance - b.distance || b.ratings.value - a.ratings.value
+        (a, b) => a.distance - b.distance || b.ratingValue - a.ratingValue
       );
       //console.log(s);
       return [...s];
@@ -116,6 +121,12 @@ const Hustlers = () => {
     navigate(`../hustler/${id}`);
   };
 
+  const handleSlider = async (value) => {
+    console.log(value, sliderValue);
+
+    await getHustlers(value);
+  };
+
   return (
     <>
       <Paper style={{ height: "100vh" }}>
@@ -130,7 +141,7 @@ const Hustlers = () => {
           elevation={1}
         >
           <Toolbar style={{ height: "100%", width: "100%", padding: "0px" }}>
-            <Grid container>
+            <Grid container style={{ paddingRight: "10px" }}>
               <Grid item xs={2}>
                 <Button
                   style={{
@@ -145,7 +156,7 @@ const Hustlers = () => {
               </Grid>
               <Grid
                 item
-                xs={7}
+                xs={8}
                 style={{
                   display: "flex",
                   justifyContent: "center",
@@ -153,9 +164,11 @@ const Hustlers = () => {
                   textTransform: "capitalize",
                 }}
               >
-                <span>{skill}</span>
+                <span>
+                  {skill} ({users?.length})
+                </span>
               </Grid>
-              <Grid item xs={3}>
+              <Grid item xs={2}>
                 <Button
                   style={{
                     height: "100%",
@@ -196,9 +209,69 @@ const Hustlers = () => {
         </AppBar>
 
         <Grid container style={{ paddingTop: "60px", paddingBottom: "64px" }}>
-          {/* <Grid item xs={12} style={{ padding: "0px 10px" }}>
-            <CustomSlider />
-          </Grid> */}
+          <Grid item xs={12} style={{ padding: "10px 10px 10px 10px" }}>
+            <Card sx={{ border: "0.1px solid #d2d2d2" }} elevation={1}>
+              <Grid container>
+                <Grid
+                  item
+                  xs={10}
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    paddingLeft: "15px",
+                  }}
+                >
+                  <Slider
+                    aria-label="Distance"
+                    value={sliderValue || 0}
+                    defaultValue={0}
+                    //getAriaValueText={sliderValue}
+                    //valueLabelDisplay="auto"
+                    step={10}
+                    marks
+                    min={10}
+                    max={50}
+                    onChange={(e, value) => setSliderValue(value)}
+                    onChangeCommitted={(e, value) => handleSlider(value)}
+                    sx={{
+                      color:
+                        theme.palette.mode === "dark"
+                          ? "#fff"
+                          : "rgba(0,0,0,0.87)",
+                      "& .MuiSlider-track": {
+                        border: "none",
+                      },
+                      "& .MuiSlider-thumb": {
+                        width: 20,
+                        height: 20,
+                        backgroundColor: "#fff",
+                        "&:before": {
+                          boxShadow: "0 4px 8px rgba(0,0,0,0.4)",
+                        },
+                        "&:hover, &.Mui-focusVisible, &.Mui-active": {
+                          boxShadow: "none",
+                        },
+                      },
+                    }}
+                  />
+                  <span style={{ paddingLeft: "15px" }}>({sliderValue}km)</span>
+                </Grid>
+                <Grid item xs={2}>
+                  <Button
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      color: "black",
+                    }}
+                    onClick={(e) => setOpenInstructions(true)}
+                  >
+                    <ListAltRoundedIcon />
+                  </Button>
+                </Grid>
+              </Grid>
+            </Card>
+          </Grid>
           <Grid item xs={12}>
             {users?.length ? (
               users.map((user, index) => {
@@ -226,6 +299,13 @@ const Hustlers = () => {
       >
         <CircularProgress color="inherit" />
       </Backdrop>
+      <Drawer
+        anchor={"bottom"}
+        open={openInstructions}
+        onClose={(e) => setOpenInstructions(false)}
+      >
+        <Instructions />
+      </Drawer>
     </>
   );
 };

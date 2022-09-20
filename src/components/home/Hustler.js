@@ -314,7 +314,7 @@ const Hustler = () => {
                     }}
                   >
                     <Grid container>
-                      <Grid item xs={8}>
+                      <Grid item xs={9} style={{ overflow: "hidden" }}>
                         <span
                           style={{
                             fontSize: "25px",
@@ -323,13 +323,13 @@ const Hustler = () => {
                           {skillOptions[hustler.skill] || "-"}
                         </span>
                       </Grid>
-                      <Grid item xs={4}>
+                      <Grid item xs={3}>
                         <span
                           style={{
                             fontSize: "25px",
                           }}
                         >
-                          {hustler.experience || "-"}+
+                          {hustler.experience ? `${hustler.experience}+` : "-"}
                         </span>
                       </Grid>
                     </Grid>
@@ -344,10 +344,10 @@ const Hustler = () => {
                     // }}
                   >
                     <Grid container>
-                      <Grid item xs={8}>
+                      <Grid item xs={9}>
                         <span style={{ fontSize: "20px" }}>Skill</span>
                       </Grid>
-                      <Grid item xs={4}>
+                      <Grid item xs={3}>
                         <span style={{ fontSize: "20px", width: "50px" }}>
                           Exp
                         </span>
